@@ -1,1 +1,54 @@
-[workflow content — already provided]
+name: SWE437-A4-Flaky-Confirm
+on: [workflow_dispatch, push]
+
+jobs:
+  confirm-flaky:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout IDoFT repo
+        uses: actions/checkout@v4
+
+      - name: Set up Temurin JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Maven
+        run: sudo apt-get update && sudo apt-get install -y maven
+
+      - name: Clone PrimeFaces
+        run: |
+          git clone https://github.com/primefaces/primefaces
+          cd primefaces
+          git checkout 07144423145bdc9b43483158cdc1af9705cfe5f4
+
+      - name: Build primefaces
+        working-directory: primefaces
+        run: |
+          mvn -q -DskipTests -Dgpg.skip=true -Dlicense.skip=true \
+            -Dcheckstyle.skip -pl primefaces -am clean install
+
+      - name: Run test normally (PASS expected)
+        working-directory: primefaces
+        run: |
+          mvn -q -Dgpg.skip=true -pl primefaces test \
+            -Dtest=org.primefaces.component.importconstants.ImportConstantsTagHandlerTest#test \
+            | tee ../normal-run.log
+
+      - name: Run test with NonDex (expected flaky FAIL)
+        working-directory: primefaces
+        run: |
+          mvn -q -Dgpg.skip=true -pl primefaces \
+            edu.illinois:nondex-maven-plugin:2.1.1:nondex \
+            -DnondexRuns=50 \
+            -Dtest=org.primefaces.component.importconstants.ImportConstantsTagHandlerTest#test \
+            | tee ../ci-build.log
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: a4-logs
+          path: |
+            normal-run.log
+            ci-build.log
