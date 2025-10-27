@@ -34,7 +34,7 @@ jobs:
         run: |
           mvn -q -Dgpg.skip=true -pl primefaces test \
             -Dtest=org.primefaces.component.importconstants.ImportConstantsTagHandlerTest#test \
-            | tee ../normal-run.log
+            | tee normal-run.log
 
       - name: Run test with NonDex (expected flaky FAIL)
         working-directory: primefaces
@@ -43,7 +43,7 @@ jobs:
             edu.illinois:nondex-maven-plugin:2.1.1:nondex \
             -DnondexRuns=50 \
             -Dtest=org.primefaces.component.importconstants.ImportConstantsTagHandlerTest#test \
-            | tee ../ci-build.log
+            | tee ci-build.log
 
       - name: Upload logs
         uses: actions/upload-artifact@v4
