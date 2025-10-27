@@ -50,6 +50,6 @@ jobs:
         with:
           name: a4-logs
           path: |
-            ../normal-run.log
-            ../ci-build.log
+            primefaces/normal-run.log
+            primefaces/ci-build.log
 
