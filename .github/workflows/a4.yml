@@ -50,5 +50,6 @@ jobs:
         with:
           name: a4-logs
           path: |
-            normal-run.log
-            ci-build.log
+            ../normal-run.log
+            ../ci-build.log
+
